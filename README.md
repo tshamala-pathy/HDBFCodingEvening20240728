@@ -29,9 +29,4 @@ This is a simple chat application built using plain HTML, CSS, and JavaScript. I
 - JavaScript
 
 ## Getting Started
-
-1. **Clone the Repository**
-
-   ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+...
