@@ -1,68 +1,123 @@
-document.addEventListener('DOMContentLoaded', (Event) => {// run code when the DOM is fully loaded
-    const messages = document.getElementById('mesaage'); // get the div for messages
-    const messageInput = document.getElementById('message-input'); // get the message input field
-    const sendButton = document.getElementById('send-button'); // get the send button
-    const usersList = document.getElementById('users'); // get the users list
-    
-    let username = prompt("please Enter your username:"); // getting username
-    if (!username) {// If no username is entered, default to "Anonymous"
-        username = "Anonymous";}
-    
-    const users = new Set(); // Create a set to store online users
-    users.add(username); // Add the current user to the set
-    localStorage.setItem('username', username); // Save the username to local storage
+document.addEventListener('DOMContentLoaded', () => {
+    const messages = document.getElementById('messages');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const usersList = document.getElementById('users');
+    const typingNotification = document.getElementById('typing-notification');
+
+    // Prompt the user for a username
+    let username = prompt("Please enter your username:");
+    if (!username) {
+        username = "Anonymous";
+    }
+
+    // Create a set to store online users
+    const users = new Set(JSON.parse(localStorage.getItem('users')) || []);
+    users.add(username);
+    localStorage.setItem('username', username);
+    localStorage.setItem('users', JSON.stringify(Array.from(users)));
 
     // Load existing messages from local storage
     const existingMessages = JSON.parse(localStorage.getItem('messages')) || [];
-    existingMessages.forEach(msg => addMessageToDOM(msg)); // Display existing messages
+    existingMessages.forEach(msg => addMessageToDOM(msg));
 
-    sendButton.addEventListener('click', sendMessage); // Add event listener to send button
-    messageInput.addEventListener('keypress', (e) => { // Add event listener for 'Enter' key
-    if (e.key === 'Enter') {
-        sendMessage();
-    }});
+    // Add event listener to the send button
+    sendButton.addEventListener('click', sendMessage);
 
+    // Add event listener for 'Enter' key
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
 
+    // Add event listener for input to display "user is typing" notification
+    messageInput.addEventListener('input', () => {
+        if (messageInput.value) {
+            typingNotification.innerText = `${username} is typing...`;
+        } else {
+            typingNotification.innerText = '';
+        }
+    });
+
+    // Function to send a message
     function sendMessage() {
-        const messageText = messageInput.value.trim(); // Get and trim the message input
-        if (messageText !== '') { // If message is not empty
+        const messageText = messageInput.value.trim();
+        if (messageText !== '') {
             const message = {
-                username: username, // Set the username
-                text: messageText, // Set the message text
-                timestamp: new Date().toLocaleTimeString() // Set the current time as the timestamp
+                username: username,
+                text: formatMessage(messageText),
+                timestamp: new Date().toLocaleTimeString()
             };
-            addMessageToDOM(message); // Add message to the DOM
-            saveMessageToLocalStorage(message); // Save message to local storage
-            messageInput.value = ''; // Clear the input field
+            addMessageToDOM(message);
+            saveMessageToLocalStorage(message);
+            messageInput.value = '';
         }
     }
 
-
+    // Function to add a message to the DOM
     function addMessageToDOM(message) {
-        const messageElement = document.createElement('div'); // Create a new div for the message
-        messageElement.classList.add('message'); // Add a class to the message div
-        messageElement.innerHTML = `<strong>${message.username}</strong> [${message.timestamp}]: ${message.text}`; // Set the inner HTML
-        messages.appendChild(messageElement); // Append the message to the messages div
-        messages.scrollTop = messages.scrollHeight; // Scroll to the bottom of the messages div
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.innerHTML = `<strong>${message.username}</strong> [${message.timestamp}]: ${message.text}`;
+        messages.appendChild(messageElement);
+        messages.scrollTop = messages.scrollHeight;
     }
 
-
+    // Function to save a message to local storage
     function saveMessageToLocalStorage(message) {
-        const messages = JSON.parse(localStorage.getItem('messages')) || []; // Get existing messages from local storage
-        messages.push(message); // Add the new message to the array
-        localStorage.setItem('messages', JSON.stringify(messages)); // Save the updated array back to local storage
+        const messagesArray = JSON.parse(localStorage.getItem('messages')) || [];
+        messagesArray.push(message);
+        localStorage.setItem('messages', JSON.stringify(messagesArray));
     }
 
-
+    // Function to update the user list
     function updateUserList() {
-        usersList.innerHTML = ''; // Clear the current list of users
-        users.forEach(user => { // For each user in the set
-            const userElement = document.createElement('li'); // Create a new list item
-            userElement.textContent = user; // Set the text content to the username
-            usersList.appendChild(userElement); // Append the user to the users list
+        usersList.innerHTML = '';
+        users.forEach(user => {
+            const userElement = document.createElement('li');
+            userElement.textContent = user;
+            usersList.appendChild(userElement);
         });
     }
 
-    updateUserList(); // Update the user list initially
-});
+    updateUserList();
 
+    // Function to display "user is typing" notification
+    function displayTypingNotification() {
+        if (messageInput.value) {
+            typingNotification.innerText = `${username} is typing...`;
+        } else {
+            typingNotification.innerText = '';
+        }
+    }
+
+    // Function to change username
+    document.getElementById('change-username-button').addEventListener('click', () => {
+        const newUsername = prompt("Enter new username:");
+        changeUsername(newUsername);
+    });
+
+    function changeUsername(newUsername) {
+        if (newUsername) {
+            users.delete(username);
+            username = newUsername;
+            users.add(username);
+            localStorage.setItem('username', username);
+            localStorage.setItem('users', JSON.stringify(Array.from(users)));
+            updateUserList();
+        }
+    }
+
+    // Function to format messages
+    function formatMessage(text, options = { bold: false, italic: false }) {
+        let formattedText = text;
+        if (options.bold) {
+            formattedText = `<strong>${formattedText}</strong>`;
+        }
+        if (options.italic) {
+            formattedText = `<em>${formattedText}</em>`;
+        }
+        return formattedText;
+    }
+});
