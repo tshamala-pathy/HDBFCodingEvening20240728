@@ -37,6 +37,12 @@ body {
 .user-list ul {
     list-style: none;
     padding: 0;
+    margin: 0;
+}
+
+.user-list li {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
 }
 
 /* Styling for the chat box section */
@@ -49,13 +55,25 @@ body {
 .messages {
     flex-grow: 1;
     overflow-y: auto;
-    padding-right: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    background-color: #fafafa;
 }
 
-/* Styling for the input area and send button */
+.message {
+    margin-bottom: 10px;
+}
+
+.message strong {
+    color: #333;
+}
+
 .input-area {
     display: flex;
     align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
 }
 
 #message-input {
@@ -64,6 +82,7 @@ body {
     border: 1px solid #ddd;
     border-radius: 4px;
     margin-right: 10px;
+    font-size: 16px;
 }
 
 #send-button {
@@ -73,8 +92,21 @@ body {
     color: #fff;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 16px;
 }
 
 #send-button:hover {
     background-color: #0056b3;
+}
+
+/* Styling for typing notification */
+#typing-notification {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: #e9ecef;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
 }
